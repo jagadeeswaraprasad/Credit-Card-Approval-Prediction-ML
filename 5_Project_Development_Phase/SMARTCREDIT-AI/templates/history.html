@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Prediction History — SmartCredit AI{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Prediction History</h1>
+    <p class="text-muted">{{ data.total }} total assessments on record.</p>
+  </div>
+  <a href="{{ url_for('history.export') }}" class="btn btn-secondary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
+    Export CSV
+  </a>
+</div>
+
+<form method="GET" action="{{ url_for('history.history') }}" class="glass-card fade-up" style="padding:18px 22px; margin-bottom:20px; display:flex; gap:12px; flex-wrap:wrap; align-items:center;">
+  <input type="text" name="search" class="form-control" placeholder="Search by applicant name..." value="{{ search }}" style="flex:1; min-width:220px;">
+  <select name="status" class="form-control" style="max-width:170px;">
+    <option value="">All Results</option>
+    <option value="Approved" {{ 'selected' if status_filter == 'Approved' }}>Approved</option>
+    <option value="Rejected" {{ 'selected' if status_filter == 'Rejected' }}>Rejected</option>
+  </select>
+  <select name="risk" class="form-control" style="max-width:170px;">
+    <option value="">All Risk Levels</option>
+    <option value="Low Risk" {{ 'selected' if risk_filter == 'Low Risk' }}>Low Risk</option>
+    <option value="Medium Risk" {{ 'selected' if risk_filter == 'Medium Risk' }}>Medium Risk</option>
+    <option value="High Risk" {{ 'selected' if risk_filter == 'High Risk' }}>High Risk</option>
+  </select>
+  <select name="sort_by" class="form-control" style="max-width:170px;">
+    <option value="date" {{ 'selected' if sort_by == 'date' }}>Sort: Date</option>
+    <option value="name" {{ 'selected' if sort_by == 'name' }}>Sort: Name</option>
+    <option value="confidence" {{ 'selected' if sort_by == 'confidence' }}>Sort: Confidence</option>
+  </select>
+  <button type="submit" class="btn btn-primary">Apply</button>
+  {% if search or status_filter or risk_filter %}
+  <a href="{{ url_for('history.history') }}" class="btn btn-ghost">Clear</a>
+  {% endif %}
+</form>
+
+<div class="glass-card fade-up delay-1">
+  {% if data.records %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead>
+        <tr><th>Applicant</th><th>Result</th><th>Approval %</th><th>Confidence</th><th>Risk</th><th>Model</th><th>Date</th><th></th></tr>
+      </thead>
+      <tbody id="historyBody">
+        {% for r in data.records %}
+        <tr id="row-{{ r.id }}">
+          <td style="font-weight:600;">{{ r.applicant_name }}</td>
+          <td>{% if r.prediction == 'Approved' %}<span class="badge badge-success"><span class="badge-dot"></span>Approved</span>{% else %}<span class="badge badge-danger"><span class="badge-dot"></span>Rejected</span>{% endif %}</td>
+          <td>{{ r.approval_probability }}%</td>
+          <td>{{ r.confidence_score }}%</td>
+          <td>
+            {% if r.risk_category == 'Low Risk' %}<span class="badge badge-success">{{ r.risk_category }}</span>
+            {% elif r.risk_category == 'Medium Risk' %}<span class="badge badge-warning">{{ r.risk_category }}</span>
+            {% else %}<span class="badge badge-danger">{{ r.risk_category }}</span>{% endif %}
+          </td>
+          <td class="text-muted">{{ r.model_used }}</td>
+          <td class="text-muted">{{ r.created_at }}</td>
+          <td style="display:flex; gap:6px;">
+            <a href="{{ url_for('prediction.result', prediction_id=r.id) }}" class="btn btn-ghost btn-sm">View</a>
+            <button class="btn btn-danger btn-sm" onclick="deletePrediction({{ r.id }})">Delete</button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div class="flex-between" style="padding: 18px 22px;">
+    <span class="text-muted" style="font-size:13.5px;">Page {{ data.page }} of {{ data.total_pages }}</span>
+    <div style="display:flex; gap:8px;">
+      {% if data.page > 1 %}
+      <a class="btn btn-secondary btn-sm" href="?page={{ data.page - 1 }}&search={{ search }}&status={{ status_filter }}&risk={{ risk_filter }}&sort_by={{ sort_by }}">← Previous</a>
+      {% endif %}
+      {% if data.page < data.total_pages %}
+      <a class="btn btn-secondary btn-sm" href="?page={{ data.page + 1 }}&search={{ search }}&status={{ status_filter }}&risk={{ risk_filter }}&sort_by={{ sort_by }}">Next →</a>
+      {% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7"/></svg>
+    </div>
+    <p>No predictions match your filters.</p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/history.js') }}"></script>
+{% endblock %}

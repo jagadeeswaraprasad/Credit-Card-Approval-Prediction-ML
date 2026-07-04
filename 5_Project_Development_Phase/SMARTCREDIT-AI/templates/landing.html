@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartCredit AI — Enterprise Credit Card Approval & Risk Assessment Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/landing.css') }}">
+<script>
+  document.documentElement.setAttribute('data-theme',
+    (document.cookie.match(/smartcredit-theme=(dark|light)/) || [])[1] || 'light');
+</script>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-inner">
+    <a href="{{ url_for('main.landing') }}" class="brand">
+      <div class="brand-mark">SC</div>
+      <span>SmartCredit <span class="gradient-text">AI</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how-it-works">How AI Works</a>
+      <a href="#models">Model Comparison</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </div>
+    <div class="nav-actions">
+      <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+      </button>
+      <a href="{{ url_for('auth.login') }}" class="btn btn-ghost">Log in</a>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary">Get Started</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="container hero-inner">
+    <div class="fade-up">
+      <div class="eyebrow">⚡ Powered by Ensemble Machine Learning</div>
+      <h1 class="hero-title">Credit decisions,<br><span class="gradient-text">made explainable.</span></h1>
+      <p class="hero-sub">
+        SmartCredit AI evaluates credit card applications in real time using an ensemble of
+        machine learning models — delivering approval probability, risk category and the exact
+        factors behind every decision. Built for banks that need speed, accuracy and transparency.
+      </p>
+      <div class="hero-cta">
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Start Free Assessment →</a>
+        <a href="#how-it-works" class="btn btn-secondary btn-lg">See How It Works</a>
+      </div>
+      <div class="hero-trust">
+        <span>Trusted architecture for</span>
+        <strong>Retail Banking</strong> · <strong>NBFCs</strong> · <strong>Fintech Platforms</strong>
+      </div>
+    </div>
+
+    <div class="hero-visual fade-up delay-2">
+      <div class="glass-card hero-panel">
+        <div class="flex-between" style="margin-bottom:18px;">
+          <span class="text-muted" style="font-size:13px; font-weight:600;">LIVE RISK ASSESSMENT</span>
+          <span class="badge badge-success"><span class="badge-dot"></span>Model Active</span>
+        </div>
+        <div style="text-align:center; padding: 10px 0 20px;">
+          <canvas id="heroGauge" width="220" height="150" style="width:220px;height:150px;"></canvas>
+        </div>
+        <div class="hero-panel-row">
+          <span>Approval Probability</span><strong class="gradient-text">87.4%</strong>
+        </div>
+        <div class="hero-panel-row">
+          <span>Risk Category</span><span class="badge badge-success">Low Risk</span>
+        </div>
+        <div class="hero-panel-row">
+          <span>Model</span><span>{{ metadata.best_model or 'Ensemble Classifier' }}</span>
+        </div>
+      </div>
+      <div class="glass-card hero-float-card">
+        <div style="font-size:12px; color:var(--text-muted); font-weight:600;">ROC-AUC SCORE</div>
+        <div style="font-size:22px; font-weight:800;" class="gradient-text">
+          {{ (metrics[metadata.best_model].roc_auc * 100)|round(1) if metadata.best_model else '96.1' }}%
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- LOGOS / STATS STRIP -->
+<section class="stats-strip">
+  <div class="container stats-strip-inner">
+    <div><div class="stat-num">4</div><div class="stat-cap">ML Models Compared</div></div>
+    <div><div class="stat-num">{{ metadata.trained_on_rows or '6,000' }}</div><div class="stat-cap">Applications Trained On</div></div>
+    <div><div class="stat-num">{{ (metrics[metadata.best_model].roc_auc*100)|round(1) if metadata.best_model else 96.1 }}%</div><div class="stat-cap">ROC-AUC Accuracy</div></div>
+    <div><div class="stat-num">&lt;100ms</div><div class="stat-cap">Prediction Latency</div></div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section" id="features">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Platform</div>
+      <h2>Everything a modern credit desk needs</h2>
+      <p class="text-secondary">A complete, explainable underwriting workflow — from application to decision.</p>
+    </div>
+    <div class="grid features-grid">
+      <div class="glass-card hoverable feature-card fade-up">
+        <div class="feature-icon" style="background:var(--info-bg); color:var(--info);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6l8-4z"/></svg>
+        </div>
+        <h3>Secure by Design</h3>
+        <p class="text-secondary">Password hashing, session management and a full audit trail on every action.</p>
+      </div>
+      <div class="glass-card hoverable feature-card fade-up delay-1">
+        <div class="feature-icon" style="background:var(--success-bg); color:var(--success);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/><path d="M7 15l4-5 4 3 5-7"/></svg>
+        </div>
+        <h3>Ensemble ML Engine</h3>
+        <p class="text-secondary">Logistic Regression, Decision Tree, Random Forest and XGBoost compared automatically — the best performer is deployed.</p>
+      </div>
+      <div class="glass-card hoverable feature-card fade-up delay-2">
+        <div class="feature-icon" style="background:rgba(124,58,237,0.1); color:var(--brand-2);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        </div>
+        <h3>Real-Time Decisions</h3>
+        <p class="text-secondary">Applications are scored instantly with probability, confidence and risk classification.</p>
+      </div>
+      <div class="glass-card hoverable feature-card fade-up delay-3">
+        <div class="feature-icon" style="background:var(--warning-bg); color:var(--warning);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19h16M4 15l4-4 4 3 6-7"/></svg>
+        </div>
+        <h3>Explainable AI</h3>
+        <p class="text-secondary">Every decision ships with the top contributing factors — never a black box.</p>
+      </div>
+      <div class="glass-card hoverable feature-card fade-up delay-4">
+        <div class="feature-icon" style="background:var(--info-bg); color:var(--info);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M8 4v3"/></svg>
+        </div>
+        <h3>Full Prediction History</h3>
+        <p class="text-secondary">Search, filter, sort and export every past assessment as CSV in one click.</p>
+      </div>
+      <div class="glass-card hoverable feature-card fade-up delay-5">
+        <div class="feature-icon" style="background:rgba(6,182,212,0.1); color:var(--brand-3);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20V10M18 20V4M6 20v-6"/></svg>
+        </div>
+        <h3>Analytics Dashboard</h3>
+        <p class="text-secondary">Live approval rate, confidence trends and risk distribution at a glance.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW AI WORKS -->
+<section class="section section-alt" id="how-it-works">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Under the Hood</div>
+      <h2>How the AI makes a decision</h2>
+      <p class="text-secondary">A transparent, four-stage pipeline from raw application to explainable outcome.</p>
+    </div>
+    <div class="steps-grid">
+      <div class="step-card glass-card fade-up">
+        <div class="step-num">01</div>
+        <h4>Data Ingestion</h4>
+        <p class="text-secondary">Applicant details are validated, cleaned and engineered into model-ready features (e.g. debt-to-income ratio).</p>
+      </div>
+      <div class="step-card glass-card fade-up delay-1">
+        <div class="step-num">02</div>
+        <h4>Model Scoring</h4>
+        <p class="text-secondary">The best-performing model — selected automatically by ROC-AUC — scores the application in milliseconds.</p>
+      </div>
+      <div class="step-card glass-card fade-up delay-2">
+        <div class="step-num">03</div>
+        <h4>Explainability Layer</h4>
+        <p class="text-secondary">Feature contributions are computed per-applicant to surface the top factors driving the decision.</p>
+      </div>
+      <div class="step-card glass-card fade-up delay-3">
+        <div class="step-num">04</div>
+        <h4>Risk Classification</h4>
+        <p class="text-secondary">Approval probability is mapped to Low / Medium / High risk with tailored next-step recommendations.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MODEL COMPARISON -->
+<section class="section" id="models">
+  <div class="container">
+    <div class="section-head">
+      <div class="eyebrow">Benchmarks</div>
+      <h2>Four models. One winner, chosen by data.</h2>
+      <p class="text-secondary">Every model is trained and evaluated on the same holdout set; the highest ROC-AUC is deployed to production.</p>
+    </div>
+    <div class="glass-card" style="padding: 28px; overflow-x:auto;">
+      <table class="data-table">
+        <thead>
+          <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1 Score</th><th>ROC-AUC</th><th></th></tr>
+        </thead>
+        <tbody>
+          {% for name, m in metrics.items() %}
+          <tr>
+            <td style="font-weight:600;">{{ name }}</td>
+            <td>{{ (m.accuracy*100)|round(2) }}%</td>
+            <td>{{ (m.precision*100)|round(2) }}%</td>
+            <td>{{ (m.recall*100)|round(2) }}%</td>
+            <td>{{ (m.f1_score*100)|round(2) }}%</td>
+            <td style="font-weight:700;">{{ (m.roc_auc*100)|round(2) }}%</td>
+            <td>{% if name == metadata.best_model %}<span class="badge badge-success">★ Deployed</span>{% endif %}</td>
+          </tr>
+          {% else %}
+          <tr><td colspan="7" class="text-muted">Model metrics will appear here after training (run <code>python ml/train.py</code>).</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="section section-alt" id="about">
+  <div class="container about-grid">
+    <div class="fade-up">
+      <div class="eyebrow">About</div>
+      <h2>Built for institutions that value both accuracy and trust</h2>
+      <p class="text-secondary" style="margin-top:14px;">
+        SmartCredit AI was designed as a reference-grade platform for credit risk teams —
+        combining a rigorous ML pipeline with a compliance-friendly explainability layer and a
+        production-style Flask architecture. It's the foundation a bank's engineering team could
+        extend into a full underwriting system.
+      </p>
+      <div class="about-points">
+        <div><span class="badge-dot" style="background:var(--brand); display:inline-block;"></span> Modular, auditable codebase</div>
+        <div><span class="badge-dot" style="background:var(--brand); display:inline-block;"></span> Full audit logging on every action</div>
+        <div><span class="badge-dot" style="background:var(--brand); display:inline-block;"></span> No black-box decisions</div>
+      </div>
+    </div>
+    <div class="glass-card fade-up delay-2" style="padding:30px;">
+      <h4 style="margin-bottom:16px;">Why Explainability Matters</h4>
+      <p class="text-secondary">Regulators and applicants alike deserve to know <em>why</em> a credit decision was made. SmartCredit AI never returns a bare Approved/Rejected — every response includes probability, confidence, risk category and the top contributing factors.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT / CTA -->
+<section class="section" id="contact">
+  <div class="container">
+    <div class="glass-card cta-card fade-up">
+      <h2>Ready to see it in action?</h2>
+      <p class="text-secondary" style="max-width:520px; margin: 10px auto 26px;">Create a free account and run your first explainable credit assessment in under a minute.</p>
+      <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Create Free Account</a>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div>
+      <div class="brand" style="margin-bottom:12px;"><div class="brand-mark">SC</div><span>SmartCredit AI</span></div>
+      <p class="text-muted" style="max-width:280px;">Enterprise credit card approval & risk assessment platform, powered by explainable machine learning.</p>
+    </div>
+    <div>
+      <h5 style="margin-bottom:14px; font-size:13.5px;">Product</h5>
+      <a href="#features" class="footer-link">Features</a>
+      <a href="#how-it-works" class="footer-link">How AI Works</a>
+      <a href="#models" class="footer-link">Model Comparison</a>
+    </div>
+    <div>
+      <h5 style="margin-bottom:14px; font-size:13.5px;">Account</h5>
+      <a href="{{ url_for('auth.login') }}" class="footer-link">Log in</a>
+      <a href="{{ url_for('auth.register') }}" class="footer-link">Get Started</a>
+    </div>
+    <div>
+      <h5 style="margin-bottom:14px; font-size:13.5px;">Legal</h5>
+      <a href="#" class="footer-link">Privacy Policy</a>
+      <a href="#" class="footer-link">Terms of Service</a>
+    </div>
+  </div>
+  <div class="container" style="margin-top:36px; padding-top:22px; border-top:1px solid var(--border);">
+    <p class="text-muted" style="font-size:13px;">© 2026 SmartCredit AI. A demonstration enterprise-grade ML platform. Not a real financial institution.</p>
+  </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/charts.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  SmartChart.gauge(document.getElementById('heroGauge'), 87.4, { label: 'Confidence', colorFrom: '#4f46e5', colorTo: '#06b6d4' });
+</script>
+</body>
+</html>

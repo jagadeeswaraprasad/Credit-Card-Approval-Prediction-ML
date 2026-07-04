@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% block title %}Model Performance — SmartCredit AI{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Model Performance</h1>
+    <p class="text-muted">Deployed model: <strong class="gradient-text">{{ metadata.best_model }}</strong> · trained on {{ metadata.trained_on_rows }} applications</p>
+  </div>
+</div>
+
+<div class="glass-card fade-up" style="padding: 26px; margin-bottom: 24px; overflow-x:auto;">
+  <h3 style="font-size:16px; margin-bottom:16px;">Model Comparison</h3>
+  <table class="data-table">
+    <thead>
+      <tr><th>Model</th><th>Accuracy</th><th>Precision</th><th>Recall</th><th>F1 Score</th><th>ROC-AUC</th><th></th></tr>
+    </thead>
+    <tbody>
+      {% for name, m in metrics.items() %}
+      <tr>
+        <td style="font-weight:600;">{{ name }}</td>
+        <td>{{ (m.accuracy*100)|round(2) }}%</td>
+        <td>{{ (m.precision*100)|round(2) }}%</td>
+        <td>{{ (m.recall*100)|round(2) }}%</td>
+        <td>{{ (m.f1_score*100)|round(2) }}%</td>
+        <td style="font-weight:700;">{{ (m.roc_auc*100)|round(2) }}%</td>
+        <td>{% if name == metadata.best_model %}<span class="badge badge-success">★ Deployed</span>{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom:24px;">
+  {% set best = metrics[metadata.best_model] %}
+  <div class="glass-card hoverable stat-card fade-up">
+    <div class="stat-value gradient-text">{{ (best.accuracy*100)|round(1) }}%</div>
+    <div class="stat-label">Accuracy</div>
+  </div>
+  <div class="glass-card hoverable stat-card fade-up delay-1">
+    <div class="stat-value gradient-text">{{ (best.precision*100)|round(1) }}%</div>
+    <div class="stat-label">Precision</div>
+  </div>
+  <div class="glass-card hoverable stat-card fade-up delay-2">
+    <div class="stat-value gradient-text">{{ (best.recall*100)|round(1) }}%</div>
+    <div class="stat-label">Recall</div>
+  </div>
+  <div class="glass-card hoverable stat-card fade-up delay-3">
+    <div class="stat-value gradient-text">{{ (best.roc_auc*100)|round(1) }}%</div>
+    <div class="stat-label">ROC-AUC</div>
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1fr 1fr; margin-bottom:24px;">
+  <div class="glass-card fade-up delay-1" style="padding:26px;">
+    <h3 style="font-size:16px; margin-bottom:6px;">Confusion Matrix</h3>
+    <p class="text-muted" style="font-size:13px; margin-bottom:18px;">{{ metadata.best_model }} on held-out test data ({{ metadata.test_rows }} applications)</p>
+    <div class="cm-grid">
+      <div></div><div class="cm-label">Predicted Rejected</div><div class="cm-label">Predicted Approved</div>
+      <div class="cm-label">Actual Rejected</div>
+      <div class="cm-cell cm-true">{{ best.confusion_matrix[0][0] }}</div>
+      <div class="cm-cell cm-false">{{ best.confusion_matrix[0][1] }}</div>
+      <div class="cm-label">Actual Approved</div>
+      <div class="cm-cell cm-false">{{ best.confusion_matrix[1][0] }}</div>
+      <div class="cm-cell cm-true">{{ best.confusion_matrix[1][1] }}</div>
+    </div>
+  </div>
+
+  <div class="glass-card fade-up delay-2" style="padding:26px;">
+    <h3 style="font-size:16px; margin-bottom:6px;">ROC Curve</h3>
+    <p class="text-muted" style="font-size:13px; margin-bottom:14px;">True positive rate vs. false positive rate</p>
+    <canvas id="rocCanvas" style="width:100%; height:220px;"></canvas>
+  </div>
+</div>
+
+<div class="glass-card fade-up delay-3" style="padding:26px;">
+  <h3 style="font-size:16px; margin-bottom:6px;">Feature Importance</h3>
+  <p class="text-muted" style="font-size:13px; margin-bottom:18px;">Relative influence of each feature on the deployed model's decisions</p>
+  <canvas id="importanceCanvas" style="width:100%; height:340px;"></canvas>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+  .cm-grid { display:grid; grid-template-columns: 130px 1fr 1fr; gap: 8px; align-items:center; }
+  .cm-label { font-size:12.5px; color:var(--text-muted); font-weight:600; text-align:center; }
+  .cm-cell { text-align:center; padding: 20px 10px; border-radius: var(--radius-sm); font-size:22px; font-weight:800; }
+  .cm-true { background: var(--success-bg); color: var(--success); }
+  .cm-false { background: var(--danger-bg); color: var(--danger); }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  const rocData = {{ (metrics[metadata.best_model].roc_curve.tpr)|tojson }}.map((v, i) => ({ value: v * 100 }));
+  SmartChart.line(document.getElementById('rocCanvas'), rocData, { lineColor: '#06b6d4' });
+
+  const importanceData = {{ feature_importance|tojson }}.slice(0, 11).map(d => ({
+    label: d.feature.replace(/_/g, ' '), value: d.importance,
+    color: '#4f46e5', colorEnd: '#06b6d4'
+  }));
+  SmartChart.hbar(document.getElementById('importanceCanvas'), importanceData, { labelWidth: 160 });
+</script>
+{% endblock %}

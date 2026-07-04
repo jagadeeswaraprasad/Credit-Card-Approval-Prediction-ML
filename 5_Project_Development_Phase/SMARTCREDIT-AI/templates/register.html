@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — SmartCredit AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}">
+<script>document.documentElement.setAttribute('data-theme',(document.cookie.match(/smartcredit-theme=(dark|light)/)||[])[1]||'light');</script>
+</head>
+<body>
+<div class="auth-wrap">
+  <div class="auth-side">
+    <div class="auth-side-content">
+      <div class="brand" style="color:#fff;"><div class="brand-mark" style="background:rgba(255,255,255,0.2); box-shadow:none;">SC</div><span>SmartCredit AI</span></div>
+      <h2>Explainable credit risk, in minutes.</h2>
+      <p>Create a free account to start running AI-powered credit card approval assessments.</p>
+      <div class="auth-stat-list">
+        <div><span class="dot">🤖</span> 4 ML models compared automatically</div>
+        <div><span class="dot">📈</span> Full model performance dashboard</div>
+        <div><span class="dot">🧾</span> Exportable prediction history</div>
+      </div>
+    </div>
+  </div>
+  <div class="auth-form-side">
+    <div class="auth-form-box fade-up">
+      <a href="{{ url_for('main.landing') }}" class="brand"><div class="brand-mark">SC</div><span>SmartCredit <span class="gradient-text">AI</span></span></a>
+      <h1>Create your account</h1>
+      <p class="subtitle">Free for underwriting teams and analysts to trial.</p>
+
+      <form method="POST" action="{{ url_for('auth.register') }}" id="registerForm" novalidate>
+        <div class="form-group">
+          <label class="form-label">Full Name</label>
+          <input type="text" name="full_name" class="form-control" placeholder="Jordan Patel" value="{{ form.full_name if form else '' }}" required>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" name="email" class="form-control" placeholder="you@bank.com" value="{{ form.email if form else '' }}" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" placeholder="Min. 8 characters" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="confirm_password" class="form-control" placeholder="Repeat password" required>
+          </div>
+        </div>
+        <p class="text-muted" style="font-size:12.5px; margin: -10px 0 20px;">Must include 1 uppercase letter and 1 number.</p>
+        <button type="submit" class="btn btn-primary btn-block btn-lg" id="registerBtn">
+          <span id="registerBtnText">Create Account</span>
+        </button>
+      </form>
+
+      <p class="auth-footer-link">Already have an account? <a href="{{ url_for('auth.login') }}" style="color:var(--brand); font-weight:600;">Log in</a></p>
+    </div>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  document.getElementById('registerForm').addEventListener('submit', function () {
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true;
+    document.getElementById('registerBtnText').innerHTML = '<span class="spinner"></span>';
+  });
+</script>
+</body>
+</html>

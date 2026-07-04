@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+{% block title %}New Prediction — SmartCredit AI{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">New Credit Assessment</h1>
+    <p class="text-muted">Fill in the applicant's details for an instant, explainable AI decision.</p>
+  </div>
+</div>
+
+<div id="formView" class="glass-card fade-up" style="padding: 32px; max-width: 920px;">
+  <form id="predictionForm" novalidate>
+
+    <h3 style="font-size:15px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:18px;">Personal Details</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Applicant Name</label>
+        <input type="text" class="form-control" name="Applicant_Name" placeholder="e.g. Riya Sharma" required>
+        <div class="form-error">Applicant name is required.</div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Age</label>
+        <input type="number" class="form-control" name="Age" min="18" max="100" placeholder="e.g. 32" required>
+        <div class="form-error">Enter a valid age (18-100).</div>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Gender</label>
+        <select class="form-control" name="Gender" required>
+          <option value="">Select gender</option>
+          <option>Male</option><option>Female</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Marital Status</label>
+        <select class="form-control" name="Marital_Status" required>
+          <option value="">Select status</option>
+          <option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Education</label>
+        <select class="form-control" name="Education" required>
+          <option value="">Select education</option>
+          <option>High School</option><option>Graduate</option><option>Post Graduate</option><option>Doctorate</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Dependents</label>
+        <input type="number" class="form-control" name="Dependents" min="0" max="20" placeholder="e.g. 1" required>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h3 style="font-size:15px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:18px;">Financial Profile</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Employment Status</label>
+        <select class="form-control" name="Employment_Status" required>
+          <option value="">Select status</option>
+          <option>Salaried</option><option>Self-Employed</option><option>Business Owner</option><option>Unemployed</option><option>Retired</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Years Employed</label>
+        <input type="number" step="0.1" class="form-control" name="Years_Employed" min="0" max="60" placeholder="e.g. 5.5" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Annual Income ($)</label>
+        <input type="number" class="form-control" name="Annual_Income" min="0" placeholder="e.g. 65000" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Credit Score (300-900)</label>
+        <input type="number" class="form-control" name="Credit_Score" min="300" max="900" placeholder="e.g. 720" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Requested Loan Amount ($)</label>
+        <input type="number" class="form-control" name="Loan_Amount" min="0" placeholder="e.g. 15000" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Existing Debt ($)</label>
+        <input type="number" class="form-control" name="Existing_Debt" min="0" placeholder="e.g. 4000" required>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <h3 style="font-size:15px; color:var(--text-muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:18px;">Residential &amp; Credit History</h3>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Housing Status</label>
+        <select class="form-control" name="Housing_Status" required>
+          <option value="">Select housing</option>
+          <option>Owned</option><option>Mortgaged</option><option>Rented</option><option>Living with Family</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Years at Current Residence</label>
+        <input type="number" step="0.1" class="form-control" name="Years_At_Residence" min="0" max="60" placeholder="e.g. 3" required>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label">Number of Existing Credit Cards</label>
+        <input type="number" class="form-control" name="Num_Credit_Cards" min="0" max="30" placeholder="e.g. 2" required>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Previous Defaults</label>
+        <input type="number" class="form-control" name="Previous_Defaults" min="0" max="20" placeholder="e.g. 0" required>
+      </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg btn-block" id="predictBtn" style="margin-top:10px;">
+      <span id="predictBtnText">Run AI Prediction →</span>
+    </button>
+  </form>
+</div>
+
+<div id="loadingView" class="glass-card fade-up" style="padding: 32px; max-width: 920px; display:none;">
+  <div class="predict-loader">
+    <div class="orbit"></div>
+    <h3 id="loadingText">Analyzing applicant profile...</h3>
+    <p class="text-muted" style="font-size:13.5px;">Running ensemble model inference and computing explainability factors</p>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/prediction.js') }}"></script>
+{% endblock %}

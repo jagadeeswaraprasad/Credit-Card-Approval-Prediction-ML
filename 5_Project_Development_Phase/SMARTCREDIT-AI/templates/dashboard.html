@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — SmartCredit AI{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <div>
+    <h1 class="page-title">Welcome back{{ ', ' + current_user_name.split(' ')[0] if current_user_name else '' }} 👋</h1>
+    <p class="text-muted">Here's what's happening with your credit assessments.</p>
+  </div>
+  <a href="{{ url_for('prediction.new_prediction') }}" class="btn btn-primary">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M12 5v14M5 12h14"/></svg>
+    New Prediction
+  </a>
+</div>
+
+<div class="grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 24px;">
+  <div class="glass-card hoverable stat-card fade-up">
+    <div class="stat-icon" style="background:var(--info-bg); color:var(--info);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/></svg>
+    </div>
+    <div class="stat-value" data-counter="{{ stats.total_predictions }}">0</div>
+    <div class="stat-label">Total Predictions</div>
+  </div>
+  <div class="glass-card hoverable stat-card fade-up delay-1">
+    <div class="stat-icon" style="background:var(--success-bg); color:var(--success);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>
+    </div>
+    <div class="stat-value" data-counter="{{ stats.approval_rate }}" data-decimals="1">0</div>
+    <div class="stat-label">Approval Rate (%)</div>
+  </div>
+  <div class="glass-card hoverable stat-card fade-up delay-2">
+    <div class="stat-icon" style="background:var(--danger-bg); color:var(--danger);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </div>
+    <div class="stat-value" data-counter="{{ stats.rejection_rate }}" data-decimals="1">0</div>
+    <div class="stat-label">Rejection Rate (%)</div>
+  </div>
+  <div class="glass-card hoverable stat-card fade-up delay-3">
+    <div class="stat-icon" style="background:rgba(124,58,237,0.1); color:var(--brand-2);">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l7.1-1.01z"/></svg>
+    </div>
+    <div class="stat-value" data-counter="{{ stats.avg_confidence }}" data-decimals="1">0</div>
+    <div class="stat-label">Avg. Confidence (%)</div>
+  </div>
+</div>
+
+<div class="grid" style="grid-template-columns: 1.4fr 1fr; margin-bottom: 24px;">
+  <div class="glass-card fade-up" style="padding: 26px;">
+    <div class="flex-between" style="margin-bottom: 18px;">
+      <h3 style="font-size:16.5px;">Prediction Trend (Last 14 Days)</h3>
+    </div>
+    {% if stats.trend %}
+    <canvas id="trendChart" style="width:100%; height:220px;"></canvas>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3v18h18"/></svg></div>
+      <p>No prediction data yet. Run your first assessment to see trends here.</p>
+    </div>
+    {% endif %}
+  </div>
+  <div class="glass-card fade-up delay-1" style="padding: 26px;">
+    <h3 style="font-size:16.5px; margin-bottom: 18px;">Risk Distribution</h3>
+    {% if stats.risk_breakdown %}
+    <canvas id="riskDonut" style="width:100%; height:180px;"></canvas>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-top:16px;">
+      <div class="flex-between"><span class="badge badge-success"><span class="badge-dot"></span>Low Risk</span><strong>{{ stats.risk_breakdown.get('Low Risk', 0) }}</strong></div>
+      <div class="flex-between"><span class="badge badge-warning"><span class="badge-dot"></span>Medium Risk</span><strong>{{ stats.risk_breakdown.get('Medium Risk', 0) }}</strong></div>
+      <div class="flex-between"><span class="badge badge-danger"><span class="badge-dot"></span>High Risk</span><strong>{{ stats.risk_breakdown.get('High Risk', 0) }}</strong></div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+      <div class="empty-icon">📊</div>
+      <p>No data yet.</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<div class="glass-card fade-up delay-2" style="padding: 26px;">
+  <div class="flex-between" style="margin-bottom: 16px;">
+    <h3 style="font-size:16.5px;">Recent Predictions</h3>
+    <a href="{{ url_for('history.history') }}" class="btn btn-ghost btn-sm">View All →</a>
+  </div>
+  {% if stats.recent_predictions %}
+  <div class="table-wrap">
+    <table class="data-table">
+      <thead><tr><th>Applicant</th><th>Result</th><th>Confidence</th><th>Risk</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        {% for p in stats.recent_predictions %}
+        <tr>
+          <td style="font-weight:600;">{{ p.applicant_name }}</td>
+          <td>{% if p.prediction == 'Approved' %}<span class="badge badge-success"><span class="badge-dot"></span>Approved</span>{% else %}<span class="badge badge-danger"><span class="badge-dot"></span>Rejected</span>{% endif %}</td>
+          <td>{{ p.confidence_score }}%</td>
+          <td>
+            {% if p.risk_category == 'Low Risk' %}<span class="badge badge-success">{{ p.risk_category }}</span>
+            {% elif p.risk_category == 'Medium Risk' %}<span class="badge badge-warning">{{ p.risk_category }}</span>
+            {% else %}<span class="badge badge-danger">{{ p.risk_category }}</span>{% endif %}
+          </td>
+          <td class="text-muted">{{ p.created_at }}</td>
+          <td><a href="{{ url_for('prediction.result', prediction_id=p.id) }}" class="btn btn-ghost btn-sm">View →</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+    </div>
+    <p>No predictions yet. <a href="{{ url_for('prediction.new_prediction') }}" style="color:var(--brand); font-weight:600;">Run your first one →</a></p>
+  </div>
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  {% if stats.trend %}
+  SmartChart.line(document.getElementById('trendChart'),
+    {{ stats.trend|map(attribute='c')|list|tojson }}.map((v, i) => ({ value: v, label: {{ stats.trend|map(attribute='d')|list|tojson }}[i] })),
+    { lineColor: '#4f46e5' }
+  );
+  {% endif %}
+
+  {% if stats.risk_breakdown %}
+  SmartChart.donut(document.getElementById('riskDonut'), [
+    { value: {{ stats.risk_breakdown.get('Low Risk', 0) }}, color: '#059669' },
+    { value: {{ stats.risk_breakdown.get('Medium Risk', 0) }}, color: '#d97706' },
+    { value: {{ stats.risk_breakdown.get('High Risk', 0) }}, color: '#dc2626' },
+  ], { centerText: '{{ stats.total_predictions }}', centerSubtext: 'Total' });
+  {% endif %}
+</script>
+{% endblock %}

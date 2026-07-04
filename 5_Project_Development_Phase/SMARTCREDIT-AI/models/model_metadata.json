@@ -1,0 +1,51 @@
+{
+  "best_model": "Logistic Regression",
+  "feature_order": [
+    "Age",
+    "Years_Employed",
+    "Annual_Income",
+    "Credit_Score",
+    "Loan_Amount",
+    "Existing_Debt",
+    "Years_At_Residence",
+    "Dependents",
+    "Num_Credit_Cards",
+    "Previous_Defaults",
+    "Debt_To_Income_Ratio",
+    "Gender",
+    "Marital_Status",
+    "Education",
+    "Employment_Status",
+    "Housing_Status"
+  ],
+  "categorical_cols": [
+    "Gender",
+    "Marital_Status",
+    "Education",
+    "Employment_Status",
+    "Housing_Status"
+  ],
+  "numeric_cols": [
+    "Age",
+    "Years_Employed",
+    "Annual_Income",
+    "Credit_Score",
+    "Loan_Amount",
+    "Existing_Debt",
+    "Years_At_Residence",
+    "Dependents",
+    "Num_Credit_Cards",
+    "Previous_Defaults",
+    "Debt_To_Income_Ratio"
+  ],
+  "trained_on_rows": 6000,
+  "train_rows": 4800,
+  "test_rows": 1200,
+  "xgboost_available": false,
+  "all_models_compared": [
+    "Logistic Regression",
+    "Decision Tree",
+    "Random Forest",
+    "XGBoost (GB fallback)"
+  ]
+}
